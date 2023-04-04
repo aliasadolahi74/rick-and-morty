@@ -2,35 +2,45 @@ import React, { useState } from "react";
 import Header from "../../components/Header/Header";
 import classes from "./Index.module.css";
 import Character from "../../components/Character/Character";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Pagination from "../../components/Pagination/Pagination";
 
 const Index = () => {
   const [url, setUrl] = useState("https://rickandmortyapi.com/api/character");
 
-  const { isLoading, data, refetch } = useQuery({
+  const queryClient = useQueryClient();
+
+  const { isLoading, data } = useQuery({
     queryKey: ["getAllCharacters", url],
     queryFn: () => {
       return axios.get(url);
     },
   });
 
+  const { mutate } = useMutation({
+    mutationFn: (url) => {
+      return axios.get(url);
+    },
+    onSuccess: (response, url) => {
+      queryClient.invalidateQueries({ queryKey: ["getAllCharacters", url] });
+    },
+  });
+
   const handlePaginationButtonClick = (url) => {
     setUrl(url);
-    refetch();
+    mutate(url);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  } else {
-    const { results: characters, info } = data.data;
-    return (
-      <div className={classes.Container}>
-        <Header />
+  const renderContent = () => {
+    if (isLoading) {
+      return <div style={{ color: "#ffffff" }}>Loading...</div>;
+    } else {
+      const { results: characters, info } = data.data;
+      return (
         <div className={classes.Content}>
           <div className={classes.Characters}>
-            {characters.map((character) => (
+            {characters?.map((character) => (
               <Character key={character.id} info={character} />
             ))}
           </div>
@@ -39,9 +49,16 @@ const Index = () => {
             onPaginationClick={handlePaginationButtonClick}
           />
         </div>
-      </div>
-    );
-  }
+      );
+    }
+  };
+
+  return (
+    <div className={classes.Container}>
+      <Header />
+      {renderContent()}
+    </div>
+  );
 };
 
 export default Index;
