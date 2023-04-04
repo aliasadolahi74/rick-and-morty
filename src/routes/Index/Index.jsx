@@ -1,17 +1,25 @@
-import React, { useState, useEffect } from "react";
-import data from "../../dummy/dummy.json";
+import React, { useState } from "react";
 import Header from "../../components/Header/Header";
 import classes from "./Index.module.css";
 import Character from "../../components/Character/Character";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import Pagination from "../../components/Pagination/Pagination";
 
 const Index = () => {
-  const [page, setPage] = useState(1);
+  const [url, setUrl] = useState("https://rickandmortyapi.com/api/character");
 
-  const { isLoading, data } = useQuery(["getAllCharacters"], () => {
-    return axios.get("https://rickandmortyapi.com/api/character");
+  const { isLoading, data, refetch } = useQuery({
+    queryKey: ["getAllCharacters", url],
+    queryFn: () => {
+      return axios.get(url);
+    },
   });
+
+  const handlePaginationButtonClick = (url) => {
+    setUrl(url);
+    refetch();
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -26,6 +34,10 @@ const Index = () => {
               <Character key={character.id} info={character} />
             ))}
           </div>
+          <Pagination
+            info={info}
+            onPaginationClick={handlePaginationButtonClick}
+          />
         </div>
       </div>
     );
