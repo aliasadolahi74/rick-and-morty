@@ -8,7 +8,8 @@ const Index = () => {
   // console.log("dummy", data);
   // const [data, setData] = useState();
 
-  const { result: characters, info } = data;
+  const { results: characters, info } = data;
+  console.log(characters);
   const { next, prev, pages } = info;
 
   return (
