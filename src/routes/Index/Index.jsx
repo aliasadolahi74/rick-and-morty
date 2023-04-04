@@ -3,27 +3,33 @@ import data from "../../dummy/dummy.json";
 import Header from "../../components/Header/Header";
 import classes from "./Index.module.css";
 import Character from "../../components/Character/Character";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const Index = () => {
-  // console.log("dummy", data);
-  // const [data, setData] = useState();
+  const [page, setPage] = useState(1);
 
-  const { results: characters, info } = data;
-  console.log(characters);
-  const { next, prev, pages } = info;
+  const { isLoading, data } = useQuery(["getAllCharacters"], () => {
+    return axios.get("https://rickandmortyapi.com/api/character");
+  });
 
-  return (
-    <div className={classes.Container}>
-      <Header />
-      <div className={classes.Content}>
-        <div className={classes.Characters}>
-          {characters?.map((character) => (
-            <Character key={character.id} info={character} />
-          ))}
+  if (isLoading) {
+    return <div>Loading...</div>;
+  } else {
+    const { results: characters, info } = data.data;
+    return (
+      <div className={classes.Container}>
+        <Header />
+        <div className={classes.Content}>
+          <div className={classes.Characters}>
+            {characters.map((character) => (
+              <Character key={character.id} info={character} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Index;
