@@ -6,6 +6,10 @@ This project is created with React and react-query for caching
 
 For installing this Web Application first clone it into a path then use folowing commands
 
+## `npm install`
+
+Installs all of libraries in package.json file
+
 ### `npm start`
 
 Runs the app in the development mode.
